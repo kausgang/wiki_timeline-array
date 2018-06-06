@@ -3,7 +3,7 @@ Convert wikipedia timeline data (html) to array (JSON)
 
 ## Setup instruction
 >1.	Install node
->2.	Download zip and extract zip
+>2.	Download and extract zip
 >3.	Open cmd and navigate to the extracted folder
 >4.	Run command
 >>a.	npm install
