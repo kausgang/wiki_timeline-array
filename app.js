@@ -2,6 +2,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var cheerioTableparser = require('cheerio-tableparser');
+var decode = require('unescape');
 
 
 var api_main = 'https://en.wikipedia.org/w/api.php?';
