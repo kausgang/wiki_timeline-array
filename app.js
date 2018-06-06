@@ -95,6 +95,9 @@ var data = table1("#event_table").parsetable();
 //display the table
 console.log(data);
 
+//before saving the event strings, decode it of the html character....Convert HTML entities to HTML characters, e.g. &gt; converts to >.
+//https://www.npmjs.com/package/unescape
+console.log(decode(data[2][1]));
 
 
 })
