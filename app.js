@@ -7,7 +7,7 @@ var cheerioTableparser = require('cheerio-tableparser');
 var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 var page="&page=Timeline_of_Indian_history";
-var section='&section=39';
+var section='&section=16';
 // var page="&page=Timeline_of_Spanish_history"
 
 //    take the last 500 year history of the below countries
