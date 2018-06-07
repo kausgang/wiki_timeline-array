@@ -1,4 +1,24 @@
 
+// all timelines
+// https://en.wikipedia.org/wiki/Category:Timelines_by_country
+
+//    take the last 500 year history of the below countries
+// india https://en.wikipedia.org/wiki/Timeline_of_Indian_history
+// USA https://en.wikipedia.org/wiki/Timeline_of_United_States_history
+// England https://en.wikipedia.org/wiki/Timeline_of_English_history
+// china https://en.wikipedia.org/wiki/Timeline_of_Chinese_history
+// cuba https://en.wikipedia.org/wiki/Timeline_of_Cuban_history
+// France https://en.wikipedia.org/wiki/Timeline_of_French_history
+// Gramany https://en.wikipedia.org/wiki/Timeline_of_German_history
+// Italy https://en.wikipedia.org/wiki/Timeline_of_Italian_history
+// japan https://en.wikipedia.org/wiki/Timeline_of_Japanese_history
+// Mexico https://en.wikipedia.org/wiki/Timeline_of_Mexican_history
+// Poland https://en.wikipedia.org/wiki/Timeline_of_Polish_history
+// Russia https://en.wikipedia.org/wiki/Timeline_of_Russian_history
+// Spain https://en.wikipedia.org/wiki/Timeline_of_Spanish_history
+// Turkey https://en.wikipedia.org/wiki/Timeline_of_Turkish_history
+ 
+
 var request = require('request');
 var cheerio = require('cheerio');
 var cheerioTableparser = require('cheerio-tableparser');
@@ -10,11 +30,19 @@ var path = require('path');
 
 var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
-var page="&page=Timeline_of_Indian_history";
-var section='&section=37';
 
-var DESTINATION_FOLDER = "india";  //CHANGE THIS FOR OTHER COUNTRY
+// ############################## CHANGE THIS ###########################
+var page="&page=Timeline_of_United_States_history";     
+var section='&section=7';                               
+// ######################################################################
 
+// var page="&page=Timeline_of_Italian_history";
+// var section='&section=26'; //3 records - not working as last one contains more than one entry
+// var section='&section=28'; //150 records - works as last one has one record
+
+// ############################## CHANGE THIS ###########################
+var DESTINATION_FOLDER = "usa";  //CHANGE THIS FOR OTHER COUNTRY
+// ######################################################################
 
 // CHECK IF FOLDER EXISTS..IF NOT CREATE IT
 fs.exists(DESTINATION_FOLDER, function (exists) {
@@ -37,27 +65,11 @@ var fileSeparator = path.sep;
 var filename = DESTINATION_FOLDER + fileSeparator ;
 
 
-// var page="&page=Timeline_of_Spanish_history"
 
-//    take the last 500 year history of the below countries
-// india https://en.wikipedia.org/wiki/Timeline_of_Indian_history
-// USA https://en.wikipedia.org/wiki/Timeline_of_United_States_history
-// England https://en.wikipedia.org/wiki/Timeline_of_English_history
-// china https://en.wikipedia.org/wiki/Timeline_of_Chinese_history
-// cuba https://en.wikipedia.org/wiki/Timeline_of_Cuban_history
-// France https://en.wikipedia.org/wiki/Timeline_of_French_history
-// Gramany https://en.wikipedia.org/wiki/Timeline_of_German_history
-// Italy https://en.wikipedia.org/wiki/Timeline_of_Italian_history
-// japan https://en.wikipedia.org/wiki/Timeline_of_Japanese_history
-// Mexico https://en.wikipedia.org/wiki/Timeline_of_Mexican_history
-// Poland https://en.wikipedia.org/wiki/Timeline_of_Polish_history
-// Russia https://en.wikipedia.org/wiki/Timeline_of_Russian_history
-// Spain https://en.wikipedia.org/wiki/Timeline_of_Spanish_history
-// Turkey https://en.wikipedia.org/wiki/Timeline_of_Turkish_history
- 
 
 var url = api_main+action+page+section;
-
+// var url = api_main+action+page;
+console.log(url);
 
 
 request.get(url, function(err,resp_code,data) {
@@ -99,6 +111,8 @@ request.get(url, function(err,resp_code,data) {
 
  var $ = cheerio.load(content['*']);
 
+ //remove any span tag (this is important in year collumn , otherwise proper file will not be created)
+$('span').remove();
 
  //remove all links
  $('a').each(function(){
@@ -122,7 +136,9 @@ cheerioTableparser(table1);
 var data = table1("#event_table").parsetable();
 
 //display the table
-// console.log(data);
+// console.log(data[0]);
+
+ 
 
 //before saving the event strings, decode it of the html character....Convert HTML entities to HTML characters, e.g. &gt; converts to >.
 //https://www.npmjs.com/package/unescape
@@ -132,26 +148,77 @@ var data = table1("#event_table").parsetable();
 create_json(data);
 
 
+
+
 })
+
+
+
+
+
+
+
+
+
 
 
 
 
 function create_json(data){
     
-    var year,date,event = [];
-    var country;
-    
-    year = data[0];
-    //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
+    var year,event = [];
     event = data[2];
-    country = "india"; //CHANGE HERE FOR OTHER COUNTRY
+    
+    var country;
+    var year = [];
+    
+    //remove whitespaces from year...example USA timeline 1901,1902-1919
+    for(i=0;i<data[0].length;i++){
+        year[i]= data[0][i].trim();
+    }
+
+
+
+    // loop it untill the last year.length.there is different treatment for last row
+    var i = year.length;
+    var last_year;
+
+    if(isNaN(parseInt(year[i - 1]))){
+
+        while(isNaN(parseInt(year[i - 1]))){
+
+            // console.log(i)
+            last_year = i;
+            i--;       
+        }
+    
+        //set it to the last year
+        last_year=last_year - 2;
+
+    }
+    else
+        last_year = event.length;
+    
+
+
+    // console.log('first'+ last_year);
+
+    
+    
+    //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
+    
+// ############################## CHANGE THIS ###########################
+    country = "usa"; //CHANGE HERE FOR OTHER COUNTRY
+// ######################################################################
     
     //create the initial object to hold data
     var obj = {
     year: "" ,
-    //date: "",
-    india: []     //ADD NEW COUNTRY AFTER THIS
+    
+// ############################## CHANGE THIS ###########################
+    usa: [] //CHANGE HERE FOR OTHER COUNTRIES
+// ######################################################################
+    
     };
     
 
@@ -161,7 +228,7 @@ function create_json(data){
     
     
 //    1st value was "year","date" & "event"..2nd object has already been used
-    for (var i = 1; i < event.length; i++) {
+    for (var i = 1; i < last_year; i++) {
         
         if(isNaN(parseInt(year[i]))){ // if the year column is null, that means there are more events in that year
             
@@ -171,17 +238,20 @@ function create_json(data){
             while(isNaN(parseInt(year[i]))){               
                 //add next event 
                 var event_details = decode(event[i]);
-                obj.india.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+
+            // ############################## CHANGE THIS ###########################
+                obj.usa.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+            // #######################################################################
                 i++;
                
             }
            
            
            
-//           INTRODUCE DELAY HERE SO THAT WHILE LOOP FINISHES FIRST AND THEN WRITE TO FILE
-//https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            var waitTill = new Date(new Date().getTime() + 1 * 1000);
-            while(waitTill > new Date()){}
+//           INTRODUCE DELAY HERE 
+            //https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+            // var waitTill = new Date(new Date().getTime() + 1 * 1000);
+            // while(waitTill > new Date()){}
             
             
             
@@ -198,6 +268,10 @@ function create_json(data){
                 }            
             }); 
             
+
+
+            
+            
         }
         else{ //this this the first event of the year
             
@@ -206,9 +280,16 @@ function create_json(data){
             //obj.date = date[i];
            
            //empty the event array for the next year
-            obj.india = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+
+        // ############################## CHANGE THIS ###########################
+            obj.usa = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+        // ############################## CHANGE THIS ###########################
+        
             var event_details = decode(event[i]);
-            obj.india.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+
+        // ############################## CHANGE THIS ###########################    
+            obj.usa.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+        // ######################################################################
            
            
            
@@ -221,14 +302,63 @@ function create_json(data){
                     return console.log(err);
                 }            
             }); 
-         
+            
            
-        }
-        
+        }     
 
             
     }
     
+    
+
+
+
+
+
+    // take care of the last year
+    //if last_year has single row then this part will not be executed
+    // console.log(year[last_year]);
+
+    if(typeof year[last_year] !== 'undefined'){ 
+        obj.year = year[last_year];
+
+    // ############################## CHANGE THIS ###########################
+        obj.usa = [];
+    // ######################################################################
+
+        // console.log('undefined now');
+    }
+    
+    for (i=last_year;i<event.length;i++){
+
+        // console.log("inside last year");
+
+         
+            var event_details = decode(event[i]);
+
+        // ############################## CHANGE THIS ###########################
+            obj.usa.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+        // ######################################################################   
+           
+            // console.log(obj.usa);
+           
+            
+
+    }
+
+    //write the record in file 
+    //https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+    if(typeof year[last_year] !== 'undefined'){ 
+
+        fs.writeFileSync(filename+year[last_year]+'.json', JSON.stringify(obj, null, 2), function(err) {
+            if(err) {
+                return console.log(err);
+            }            
+        }); 
+
+    }
+
     
 
     console.log("data writing complete");
