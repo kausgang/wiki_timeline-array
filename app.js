@@ -5,12 +5,38 @@ var cheerioTableparser = require('cheerio-tableparser');
 var decode = require('unescape');
 var decode = require('unescape');
 var fs = require('fs');
+var path = require('path');
 
 
 var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 var page="&page=Timeline_of_Indian_history";
 var section='&section=37';
+
+var DESTINATION_FOLDER = "india";  //CHANGE THIS FOR OTHER COUNTRY
+
+
+// CHECK IF FOLDER EXISTS..IF NOT CREATE IT
+fs.exists(DESTINATION_FOLDER, function (exists) {
+
+    if (exists) {
+        // console.log(exists)
+    }
+    else {
+        console.log("creating folder");
+        fs.mkdir(DESTINATION_FOLDER,function(err){
+
+            if(err)
+                console.log(err);
+        })
+    }
+
+});
+
+var fileSeparator = path.sep;
+var filename = DESTINATION_FOLDER + fileSeparator ;
+
+
 // var page="&page=Timeline_of_Spanish_history"
 
 //    take the last 500 year history of the below countries
@@ -105,6 +131,7 @@ var data = table1("#event_table").parsetable();
 
 create_json(data);
 
+
 })
 
 
@@ -118,7 +145,7 @@ function create_json(data){
     year = data[0];
     //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
     event = data[2];
-    country = "india";
+    country = "india"; //CHANGE HERE FOR OTHER COUNTRY
     
     //create the initial object to hold data
     var obj = {
@@ -128,10 +155,9 @@ function create_json(data){
     };
     
 
-    var write_flag = true;
-
     
-    console.log(obj);
+    
+    // console.log(obj);
     
     
 //    1st value was "year","date" & "event"..2nd object has already been used
@@ -154,8 +180,8 @@ function create_json(data){
            
 //           INTRODUCE DELAY HERE SO THAT WHILE LOOP FINISHES FIRST AND THEN WRITE TO FILE
 //https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-          var waitTill = new Date(new Date().getTime() + 1 * 1000);
-while(waitTill > new Date()){}
+            var waitTill = new Date(new Date().getTime() + 1 * 1000);
+            while(waitTill > new Date()){}
             
             
             
@@ -166,7 +192,7 @@ while(waitTill > new Date()){}
             //write the record in file and move on to the next year 
             //overwriting the this year's file will all the events
 //            https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            fs.writeFileSync(static_year+'.json', JSON.stringify(obj, null, 2), function(err) {
+            fs.writeFileSync(filename+static_year+'.json', JSON.stringify(obj, null, 2), function(err) {
                 if(err) {
                     return console.log(err);
                 }            
@@ -189,7 +215,8 @@ while(waitTill > new Date()){}
            //write the record in file and move on to the next year
             //write the first record in file
 //            https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            fs.writeFileSync(year[i]+'.json', JSON.stringify(obj, null, 2), function(err) {
+
+            fs.writeFileSync(filename+year[i]+'.json', JSON.stringify(obj, null, 2), function(err) {
                 if(err) {
                     return console.log(err);
                 }            
@@ -203,4 +230,8 @@ while(waitTill > new Date()){}
     }
     
     
+
+    console.log("data writing complete");
+
+
 }
