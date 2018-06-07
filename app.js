@@ -3,12 +3,14 @@ var request = require('request');
 var cheerio = require('cheerio');
 var cheerioTableparser = require('cheerio-tableparser');
 var decode = require('unescape');
+var decode = require('unescape');
+var fs = require('fs');
 
 
 var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 var page="&page=Timeline_of_Indian_history";
-var section='&section=16';
+var section='&section=37';
 // var page="&page=Timeline_of_Spanish_history"
 
 //    take the last 500 year history of the below countries
@@ -94,12 +96,111 @@ cheerioTableparser(table1);
 var data = table1("#event_table").parsetable();
 
 //display the table
-console.log(data);
+// console.log(data);
 
 //before saving the event strings, decode it of the html character....Convert HTML entities to HTML characters, e.g. &gt; converts to >.
 //https://www.npmjs.com/package/unescape
-console.log(decode(data[2][1]));
+// console.log(decode(data[2][1]));
 
+
+create_json(data);
 
 })
 
+
+
+
+function create_json(data){
+    
+    var year,date,event = [];
+    var country;
+    
+    year = data[0];
+    //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
+    event = data[2];
+    country = "india";
+    
+    //create the initial object to hold data
+    var obj = {
+    year: "" ,
+    //date: "",
+    india: []     //ADD NEW COUNTRY AFTER THIS
+    };
+    
+
+    var write_flag = true;
+
+    
+    console.log(obj);
+    
+    
+//    1st value was "year","date" & "event"..2nd object has already been used
+    for (var i = 1; i < event.length; i++) {
+        
+        if(isNaN(parseInt(year[i]))){ // if the year column is null, that means there are more events in that year
+            
+            var static_year= year[i-1]; //save filename for overwriting purpose
+            
+            //add all the events from this year
+            while(isNaN(parseInt(year[i]))){               
+                //add next event 
+                var event_details = decode(event[i]);
+                obj.india.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+                i++;
+               
+            }
+           
+           
+           
+//           INTRODUCE DELAY HERE SO THAT WHILE LOOP FINISHES FIRST AND THEN WRITE TO FILE
+//https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+          var waitTill = new Date(new Date().getTime() + 1 * 1000);
+while(waitTill > new Date()){}
+            
+            
+            
+           
+            //adjust for the  missed count due to multiple event on previous year
+           i--;
+            
+            //write the record in file and move on to the next year 
+            //overwriting the this year's file will all the events
+//            https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+            fs.writeFileSync(static_year+'.json', JSON.stringify(obj, null, 2), function(err) {
+                if(err) {
+                    return console.log(err);
+                }            
+            }); 
+            
+        }
+        else{ //this this the first event of the year
+            
+            //update the object
+            obj.year = year[i];
+            //obj.date = date[i];
+           
+           //empty the event array for the next year
+            obj.india = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+            var event_details = decode(event[i]);
+            obj.india.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+           
+           
+           
+           //write the record in file and move on to the next year
+            //write the first record in file
+//            https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+            fs.writeFileSync(year[i]+'.json', JSON.stringify(obj, null, 2), function(err) {
+                if(err) {
+                    return console.log(err);
+                }            
+            }); 
+         
+           
+        }
+        
+
+            
+    }
+    
+    
+}
