@@ -33,7 +33,9 @@ var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###########################
 var page="&page=Timeline_of_United_States_history";     
-var section='&section=7';                               
+var section='&section=7';                             
+//to know the section number, paste this in filefox and find the section  
+// https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
 // ######################################################################
 
 // var page="&page=Timeline_of_Italian_history";
