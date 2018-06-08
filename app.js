@@ -17,6 +17,7 @@
 // Russia https://en.wikipedia.org/wiki/Timeline_of_Russian_history
 // Spain https://en.wikipedia.org/wiki/Timeline_of_Spanish_history
 // Turkey https://en.wikipedia.org/wiki/Timeline_of_Turkish_history
+// Afgan https://en.wikipedia.org/wiki/Timeline_of_Afghan_history
  
 
 var request = require('request');
@@ -32,8 +33,8 @@ var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
-var page="&page=Timeline_of_United_States_history";     
-var section='&section=1';                             
+var page="&page=Timeline_of_Australian_history";     
+var section='&section=0';                             
 //to know the section number, paste this in filefox and find the section  
 // https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
 // ###########################################################################################################
@@ -43,7 +44,7 @@ var section='&section=1';
 // var section='&section=28'; //150 records - works as last one has one record
 
 // ############################## CHANGE THIS ###########################
-var DESTINATION_FOLDER = "usa";  //CHANGE THIS FOR OTHER COUNTRY
+var DESTINATION_FOLDER = "australia";  //CHANGE THIS FOR OTHER COUNTRY
 // ######################################################################
 
 // CHECK IF FOLDER EXISTS..IF NOT CREATE IT
@@ -210,7 +211,7 @@ function create_json(data){
     //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
     
 // ############################## CHANGE THIS ###########################
-    country = "usa"; //CHANGE HERE FOR OTHER COUNTRY
+    country = "australia"; //CHANGE HERE FOR OTHER COUNTRY
 // ######################################################################
     
     //create the initial object to hold data
@@ -218,7 +219,7 @@ function create_json(data){
     year: "" ,
     
 // ############################## CHANGE THIS ###########################
-    usa: [] //CHANGE HERE FOR OTHER COUNTRIES
+    australia: [] //CHANGE HERE FOR OTHER COUNTRIES
 // ######################################################################
     
     };
@@ -242,7 +243,7 @@ function create_json(data){
                 var event_details = decode(event[i]);
 
             // ############################## CHANGE THIS ###########################
-                obj.usa.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+                obj.australia.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
             // #######################################################################
                 i++;
                
@@ -284,13 +285,13 @@ function create_json(data){
            //empty the event array for the next year
 
         // ############################## CHANGE THIS ###########################
-            obj.usa = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+            obj.australia = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
         // ############################## CHANGE THIS ###########################
         
             var event_details = decode(event[i]);
 
         // ############################## CHANGE THIS ###########################    
-            obj.usa.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+            obj.australia.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
         // ######################################################################
            
            
@@ -325,7 +326,7 @@ function create_json(data){
         obj.year = year[last_year];
 
     // ############################## CHANGE THIS ###########################
-        obj.usa = [];
+        obj.australia = [];
     // ######################################################################
 
         // console.log('undefined now');
@@ -339,7 +340,7 @@ function create_json(data){
             var event_details = decode(event[i]);
 
         // ############################## CHANGE THIS ###########################
-            obj.usa.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+            obj.australia.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
         // ######################################################################   
            
             // console.log(obj.usa);
