@@ -41,10 +41,10 @@ ir friendship.' ] ]
 C:\Users\typgang\Downloads\wiki_timeline-array-master\wiki_timeline-array-master>
 ```
 
-## To add new timeline from https://en.wikipedia.org/wiki/Category:Timelines_by_country , open app.js and change the following
+### To add new timeline from https://en.wikipedia.org/wiki/Category:Timelines_by_country , open app.js and change the following
 
 >1. URL
->2. Replace all the country name with the new country name
+>2. Replace all the country name present in the source code with the new country name
 >3. section number (get section number from https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_Indian_history (change country name in the page )
 >>a. Keep changing this number to get all the different sections
 
