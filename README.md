@@ -48,7 +48,12 @@ C:\Users\typgang\Downloads\wiki_timeline-array-master\wiki_timeline-array-master
 >3. section number (get section number from https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_Indian_history (change country name in the page )
 >>a. Keep changing this number to get all the different sections
 
-## Spin-off project
-collaborate different country's year into one single timeline 
+## Spin-off projects
+
+### Automate wikipedia historical timeline data download
+https://github.com/kausgang/collect_wiki_timline_data
+
+
+### collaborate different country's year into one single timeline 
 https://github.com/kausgang/collaborate_wiki_timeline
 
