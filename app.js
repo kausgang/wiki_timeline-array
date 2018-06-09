@@ -33,8 +33,8 @@ var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
-var page="&page=Timeline_of_Australian_history";     
-var section='&section=0';                             
+var page="&page=Timeline_of_Bhutanese_history";     
+var section='&section=1';                             
 //to know the section number, paste this in filefox and find the section  
 // https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
 // ###########################################################################################################
@@ -44,7 +44,7 @@ var section='&section=0';
 // var section='&section=28'; //150 records - works as last one has one record
 
 // ############################## CHANGE THIS ###########################
-var DESTINATION_FOLDER = "australia";  //CHANGE THIS FOR OTHER COUNTRY
+var DESTINATION_FOLDER = "bhutan";  //CHANGE THIS FOR OTHER COUNTRY
 // ######################################################################
 
 // CHECK IF FOLDER EXISTS..IF NOT CREATE IT
@@ -122,6 +122,9 @@ $('span').remove();
     var link_html = $(this).html();
     $(this).replaceWith(link_html);
 });
+
+//remove subscript
+$('sup').remove();
 
 //  find table
 var wikitable=$('.wikitable');
@@ -211,7 +214,7 @@ function create_json(data){
     //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
     
 // ############################## CHANGE THIS ###########################
-    country = "australia"; //CHANGE HERE FOR OTHER COUNTRY
+    country = "bhutan"; //CHANGE HERE FOR OTHER COUNTRY
 // ######################################################################
     
     //create the initial object to hold data
@@ -219,7 +222,7 @@ function create_json(data){
     year: "" ,
     
 // ############################## CHANGE THIS ###########################
-    australia: [] //CHANGE HERE FOR OTHER COUNTRIES
+    bhutan: [] //CHANGE HERE FOR OTHER COUNTRIES
 // ######################################################################
     
     };
@@ -243,7 +246,7 @@ function create_json(data){
                 var event_details = decode(event[i]);
 
             // ############################## CHANGE THIS ###########################
-                obj.australia.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+                obj.bhutan.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
             // #######################################################################
                 i++;
                
@@ -285,13 +288,13 @@ function create_json(data){
            //empty the event array for the next year
 
         // ############################## CHANGE THIS ###########################
-            obj.australia = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+            obj.bhutan = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
         // ############################## CHANGE THIS ###########################
         
             var event_details = decode(event[i]);
 
         // ############################## CHANGE THIS ###########################    
-            obj.australia.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+            obj.bhutan.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
         // ######################################################################
            
            
@@ -326,7 +329,7 @@ function create_json(data){
         obj.year = year[last_year];
 
     // ############################## CHANGE THIS ###########################
-        obj.australia = [];
+        obj.bhutan = [];
     // ######################################################################
 
         // console.log('undefined now');
@@ -340,7 +343,7 @@ function create_json(data){
             var event_details = decode(event[i]);
 
         // ############################## CHANGE THIS ###########################
-            obj.australia.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+            obj.bhutan.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
         // ######################################################################   
            
             // console.log(obj.usa);
