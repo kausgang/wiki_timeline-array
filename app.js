@@ -28,13 +28,12 @@ var decode = require('unescape');
 var fs = require('fs');
 var path = require('path');
 
-
 var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
-var page="&page=Timeline_of_United_States_history";     
-var section='&section=8';                             
+var page="&page=Timeline_of_Indian_history";     
+// var section='&section=8';                             
 //to know the section number, paste this in filefox and find the section  
 // https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
 // ###########################################################################################################
@@ -44,7 +43,7 @@ var section='&section=8';
 // var section='&section=28'; //150 records - works as last one has one record
 
 // ############################## CHANGE THIS ###########################
-var DESTINATION_FOLDER = "USA";  //CHANGE THIS FOR OTHER COUNTRY
+var DESTINATION_FOLDER = "India";  //CHANGE THIS FOR OTHER COUNTRY
 // ######################################################################
 
 // CHECK IF FOLDER EXISTS..IF NOT CREATE IT
@@ -67,14 +66,9 @@ fs.exists(DESTINATION_FOLDER, function (exists) {
 var fileSeparator = path.sep;
 var filename = DESTINATION_FOLDER + fileSeparator ;
 
-
-
-
-var url = api_main+action+page+section;
-// var url = api_main+action+page;
+var url = api_main+action+page;
 
 console.log(url);
-
 
 request.get(url, function(err,resp_code,data) {
 
@@ -99,47 +93,65 @@ request.get(url, function(err,resp_code,data) {
 
 
     //  find table
-    var wikitable=$('.wikitable');
+    // var wikitable=$('.wikitable');
+    // https://stackoverflow.com/questions/27430267/cheeriojs-looping-through-ul-with-same-class-name
+    $('.wikitable').each(function(i,element){
+        var table1 = cheerio.load("<table id='event_table'>" + $(element).html() + "</table>");
+        cheerioTableparser(table1);
+        var data = table1("#event_table").parsetable();
+        create_json(data);
+        
+
+    });
     
-    // console.log(wikitable.html());
-
-    // https://www.npmjs.com/package/cheerio-tableparser
-    //added the table tag as cheerioparser will accept only table tag
-    var table1 = cheerio.load("<table id='event_table'>" + wikitable.html() + "</table>");
-    cheerioTableparser(table1);
-    var data = table1("#event_table").parsetable();
-
-    //display the table
-    // console.log(data[0]);
-
-    //before saving the event strings, decode it of the html character....Convert HTML entities to HTML characters, e.g. &gt; converts to >.
-    //https://www.npmjs.com/package/unescape
-    // console.log(decode(data[2][1]));
-
-    create_json(data);
 
 })
 
 
 function create_json(data){
     
-    var year,event = [];
-    event = data[2];
-    var year = [];
-    
+    var event = [];
+    var year = [];    
+
     //remove whitespaces from year...example USA timeline 1901,1902-1919
+    // so that year can be converted to a integer
     for(i=0;i<data[0].length;i++){
-        year[i]= data[0][i].trim();
+  
+        // ONLY CONSIDER THE YEAR WHICH ARE OF THE BELOW FORMAT
+        // YYYY        (LENGTH=4)
+        // YYYY BC     (LENGTH=7)
+        // YYYY BCE    (LENGTH=8) //HIGHEST LENGTH 
+        if(data[0][i].length <= 8){
+
+            var year_suffix_bc = data[0][i].substring(data[0][i].length-2,data[0][i].length);
+            var year_suffic_bce = data[0][i].substring(data[0][i].length-3,data[0][i].length)
+            // YYYY BC
+            if(year_suffix_bc == 'BC' || year_suffix_bc == 'bc' ){
+                var year_value = data[0][i].trim().substring(0,data[0][i].length - 2);
+                year.push('-'+year_value)
+            }
+            else if(year_suffic_bce == 'BCE' || year_suffic_bce == 'bce'){
+                var year_value = data[0][i].trim().substring(0,data[0][i].length - 3);
+                year.push('-'+year_value)
+            }
+            else
+                year.push(data[0][i].trim());
+
+
+            event.push(data[2][i]);
+        }        
     }
 
-
+    // IF THERE IS NO VALID YEAR, DISREGARD THAT SECTION
+    // EXAMPLE IS "REFERENCE" ANS "SEE ALSO" SECTION OF WIKIPEDIA PAGE
+    if(year.length == 0)
+        return 0;
 
     // loop it untill the last year.length.there is different treatment for last row
     var i = year.length;
     var last_year;
 
     if(isNaN(parseInt(year[i - 1]))){
-
         while(isNaN(parseInt(year[i - 1]))){
             last_year = i;
             i--;       
@@ -154,7 +166,7 @@ function create_json(data){
     //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
     
 // ############################## CHANGE THIS ###########################
-    country = "USA"; //CHANGE HERE FOR OTHER COUNTRY
+    country = "India"; //CHANGE HERE FOR OTHER COUNTRY
 // ######################################################################
     
     //create the initial object to hold data
@@ -162,13 +174,13 @@ function create_json(data){
     year: "" ,
     
 // ############################## CHANGE THIS ###########################
-    USA: [] //CHANGE HERE FOR OTHER COUNTRIES
+    India: [] //CHANGE HERE FOR OTHER COUNTRIES
 // ######################################################################
     
     };
 
     
-//    1st value was "year","date" & "event"..
+//    1st value was "year" & "event"..
     for (var i = 1; i < last_year; i++) {
         
         if(isNaN(parseInt(year[i]))){ // if the year column is null, that means there are more events in that year
@@ -181,7 +193,7 @@ function create_json(data){
                 var event_details = decode(event[i]);
 
             // ############################## CHANGE THIS ###########################
-                obj.USA.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
+                obj.India.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
             // #######################################################################
                 i++;
                
@@ -206,15 +218,14 @@ function create_json(data){
             //obj.date = date[i];
            
            //empty the event array for the next year
-
         // ############################## CHANGE THIS ###########################
-            obj.USA = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
+            obj.India = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
         // ############################## CHANGE THIS ###########################
         
             var event_details = decode(event[i]);
 
         // ############################## CHANGE THIS ###########################    
-            obj.USA.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+            obj.India.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
         // ######################################################################
                                 
             //write the record in file and move on to the next year
@@ -237,7 +248,7 @@ function create_json(data){
         obj.year = year[last_year];
 
     // ############################## CHANGE THIS ###########################
-        obj.USA = [];
+        obj.India = [];
     // ######################################################################
 
         for (i=last_year;i<event.length;i++){
@@ -245,7 +256,7 @@ function create_json(data){
                 var event_details = decode(event[i]);
 
             // ############################## CHANGE THIS ###########################
-                obj.USA.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
+                obj.India.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
             // ######################################################################   
         }
 
@@ -259,7 +270,7 @@ function create_json(data){
     }
     
 
-    console.log("data writing complete");
+    console.log("data writing complete - year = ");
 
 
 }
