@@ -33,14 +33,11 @@ var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
 var page="&page=Timeline_of_Indian_history";     
-// var section='&section=8';                             
+                         
 //to know the section number, paste this in filefox and find the section  
 // https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
 // ###########################################################################################################
 
-// var page="&page=Timeline_of_Italian_history";
-// var section='&section=26'; //3 records - not working as last one contains more than one entry
-// var section='&section=28'; //150 records - works as last one has one record
 
 // ############################## CHANGE THIS ###########################
 var DESTINATION_FOLDER = "India";  //CHANGE THIS FOR OTHER COUNTRY
@@ -62,9 +59,6 @@ fs.exists(DESTINATION_FOLDER, function (exists) {
     }
 
 });
-
-var fileSeparator = path.sep;
-var filename = DESTINATION_FOLDER + fileSeparator ;
 
 var url = api_main+action+page;
 
@@ -99,7 +93,9 @@ request.get(url, function(err,resp_code,data) {
         var table1 = cheerio.load("<table id='event_table'>" + $(element).html() + "</table>");
         cheerioTableparser(table1);
         var data = table1("#event_table").parsetable();
-        create_json(data);
+
+        // CORRECT THE INPUT DATA , FILTER AND VALIDATE THE CORRECT YEAR AND WRITE TO FILE
+        correct_data(data,i)
         
 
     });
@@ -108,169 +104,209 @@ request.get(url, function(err,resp_code,data) {
 })
 
 
-function create_json(data){
-    
-    var event = [];
-    var year = [];    
 
-    //remove whitespaces from year...example USA timeline 1901,1902-1919
-    // so that year can be converted to a integer
-    for(i=0;i<data[0].length;i++){
-  
-        // ONLY CONSIDER THE YEAR WHICH ARE OF THE BELOW FORMAT
-        // YYYY        (LENGTH=4)
-        // YYYY BC     (LENGTH=7)
-        // YYYY BCE    (LENGTH=8) //HIGHEST LENGTH 
-        if(data[0][i].length <= 8){
+function correct_data(data,i){
 
-            var year_suffix_bc = data[0][i].substring(data[0][i].length-2,data[0][i].length);
-            var year_suffic_bce = data[0][i].substring(data[0][i].length-3,data[0][i].length)
-            // YYYY BC
-            if(year_suffix_bc == 'BC' || year_suffix_bc == 'bc' ){
-                var year_value = data[0][i].trim().substring(0,data[0][i].length - 2);
-                year.push('-'+year_value)
-            }
-            else if(year_suffic_bce == 'BCE' || year_suffic_bce == 'bce'){
-                var year_value = data[0][i].trim().substring(0,data[0][i].length - 3);
-                year.push('-'+year_value)
-            }
-            else
-                year.push(data[0][i].trim());
-
-
-            event.push(data[2][i]);
-        }        
+    // #######################################################################################################
+    // # THESE BELOW  LINES OF CODE WAS INCLUDED FOR COUNTRIES FOR WHICH DATA NEEDS MODIFICATION             #  
+    // # BASED ON THE OBSERVATION AFTER RUNNING WITH MULTIPLE TIMELINE PAGES , BELOW IF CLAUSES WERE WRITTEN #
+    // #######################################################################################################  
+    // MALAYSIA - ALL SECTIONS FOR MALAYSIA IS NOT IN STANDARD FORMAT
+    if(page=='&page=Timeline_of_Malaysian_history'){
+        if(i==0 || i==1 || i==2 || i==3 || i==4 || i==5 || i==6 || i==7)
+            return 0;
     }
 
-    // IF THERE IS NO VALID YEAR, DISREGARD THAT SECTION
-    // EXAMPLE IS "REFERENCE" ANS "SEE ALSO" SECTION OF WIKIPEDIA PAGE
-    if(year.length == 0)
-        return 0;
+    var year_data = data[0];
+    var event_data = data[2];
 
-    // loop it untill the last year.length.there is different treatment for last row
-    var i = year.length;
-    var last_year;
-
-    if(isNaN(parseInt(year[i - 1]))){
-        while(isNaN(parseInt(year[i - 1]))){
-            last_year = i;
-            i--;       
+     // CHECK IF DATA FORMAT IS CORRECT
+     if(data[0][0]!=='Year'){
+        // #######################################################################################################
+        // # THESE BELOW 2 LINES OF CODE (CONSOLE.LOG) WAS USED TO FIND WHICH DATA NEEDS MODIFICATION            #  
+        // # BASED ON THE OBSERVATION AFTER RUNNING WITH MULTIPLE TIMELINE PAGES , BELOW IF CLAUSES WERE WRITTEN #
+        // #######################################################################################################  
+        console.log("Returning page => "+page+" section => "+i);
+        console.log("year array => "+data[0])
+        // ###############################################################################################
+        // USA
+        if(page=='&page=Timeline_of_United_States_history' && i==9){
+            year_data=["Year"];
+            for(var i=0;i<data[0].length;i++)
+                year_data.push(data[0][i])
+            console.log('NEW ARRAY => '+year_data)
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            event_data.unshift("Event");
+            filter(year_data,event_data);
         }
-        //set it to the last year
-        last_year=last_year - 2;
+        // INDIA
+        if(page=='&page=Timeline_of_Indian_history' && i==9){
+            year_data=["Year"];
+            for(var i=0;i<data[0].length;i++)
+                year_data.push(data[0][i])
+            console.log('NEW ARRAY => '+year_data)
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            event_data.unshift("Event");
+            filter(year_data,event_data);
+        }
+        // CHINA
+        if(page=='&page=Timeline_of_Chinese_history' && i==45){
+            
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            year_data.unshift("Year");
+            console.log('NEW ARRAY => '+year_data)
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            event_data.unshift("Event");
+            filter(year_data,event_data);
+        }
+        // CUBA
+        if(page=='&page=Timeline_of_Cuban_history' && i==6){
+            
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            year_data.unshift("Year");
+            console.log('NEW ARRAY => '+year_data)
+
+            event_data.unshift("Event");
+            filter(year_data,event_data);
+        }
+        // PHILIPPINE
+        if(page=='&page=Timeline_of_Philippine_history'){
+            if(i==2 || i==3){
+                year_data.shift();
+                // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+                year_data.unshift("Year");
+                console.log('NEW ARRAY => '+year_data)
+
+                event_data.unshift("Event");
+                filter(year_data,event_data);
+            }  
+        }
+        // RUSSIA
+        if(page=='&page=Timeline_of_Russian_history' && i==13){
+            
+            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+            year_data.unshift("Year");
+            year_data[1]='1918';
+            console.log('NEW ARRAY => '+year_data)
+
+            event_data.unshift("Event");
+            filter(year_data,event_data);
+        }
+        // ###############################################################################################    
+        else
+            return 0;
     }
     else
-        last_year = event.length;
- 
-    
-    //date = data[1]; //DISREGARDING DATE AS INCORPORATING IT WILL BE COMPLEX
-    
-// ############################## CHANGE THIS ###########################
-    country = "India"; //CHANGE HERE FOR OTHER COUNTRY
-// ######################################################################
-    
-    //create the initial object to hold data
-    var obj = {
-    year: "" ,
-    
-// ############################## CHANGE THIS ###########################
-    India: [] //CHANGE HERE FOR OTHER COUNTRIES
-// ######################################################################
-    
-    };
-
-    
-//    1st value was "year" & "event"..
-    for (var i = 1; i < last_year; i++) {
-        
-        if(isNaN(parseInt(year[i]))){ // if the year column is null, that means there are more events in that year
-            
-            var static_year= year[i-1]; //save filename for overwriting purpose
-            
-            //add all the events from this year
-            while(isNaN(parseInt(year[i]))){               
-                //add next event 
-                var event_details = decode(event[i]);
-
-            // ############################## CHANGE THIS ###########################
-                obj.India.push(event_details); //CHANGE HERE FOR DIFFERNET COUNTRIES
-            // #######################################################################
-                i++;
-               
-            }
-                                   
-            //adjust for the  missed count due to multiple event on previous year
-           i--;
-            
-            //write the record in file and move on to the next year 
-            //overwriting the this year's file will all the events
-            //https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            fs.writeFileSync(filename+static_year+'.json', JSON.stringify(obj, null, 2), function(err) {
-                if(err) {
-                    return console.log(err);
-                }            
-            });                                     
-        }
-        else{ //this this the first event of the year
-            
-            //update the object
-            obj.year = year[i];
-            //obj.date = date[i];
-           
-           //empty the event array for the next year
-        // ############################## CHANGE THIS ###########################
-            obj.India = [];     //CHANGE HERE FOR DIFFERNET COUNTRIES
-        // ############################## CHANGE THIS ###########################
-        
-            var event_details = decode(event[i]);
-
-        // ############################## CHANGE THIS ###########################    
-            obj.India.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
-        // ######################################################################
-                                
-            //write the record in file and move on to the next year
-            //write the first record in file
-            //https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            fs.writeFileSync(filename+year[i]+'.json', JSON.stringify(obj, null, 2), function(err) {
-                if(err) {
-                    return console.log(err);
-                }            
-            });                        
-        }                 
-    }
-    
-
-    // take care of the last year
-    //if last_year has single row then this part will not be executed
-    // console.log(year[last_year]);
-
-    if(typeof year[last_year] !== 'undefined'){ 
-        obj.year = year[last_year];
-
-    // ############################## CHANGE THIS ###########################
-        obj.India = [];
-    // ######################################################################
-
-        for (i=last_year;i<event.length;i++){
-   
-                var event_details = decode(event[i]);
-
-            // ############################## CHANGE THIS ###########################
-                obj.India.push(event_details);      //CHANGE HERE FOR DIFFERNET COUNTRIES     
-            // ######################################################################   
-        }
-
-        //write the record in file 
-        //https://stackoverflow.com/questions/21976567/write-objects-into-file-with-node-js?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa      
-            fs.writeFileSync(filename+year[last_year]+'.json', JSON.stringify(obj, null, 2), function(err) {
-                if(err) {
-                    return console.log(err);
-                }            
-            }); 
-    }
-    
-
-    console.log("data writing complete - year = ");
-
+        filter(year_data,event_data);    
 
 }
+
+
+
+function filter(year_data,event_data){
+
+    // for(var i =0;i<year.length;i++)
+    //     console.log(year_data[i]+' ==> '+event_data[i])
+
+    var year = [],
+        event = [];
+
+    for(var i=0;i<year_data.length;i++){
+        // console.log('validating element '+year_data[i])
+
+        var element = year_data[i];
+
+        // element = ''
+        var obj = validate(element)
+        if(obj.valid){
+            // console.log(obj.year)
+            year.push(obj.year);
+            event.push(event_data[i]);
+            j=i+1;
+            if(year_data[j] == ''){
+                while(year_data[j]==''){
+                    year.push(year_data[j]);
+                    event.push(event_data[j]);
+                    j++;
+                }
+            }
+            // console.log('calling writefile with '+year)
+            write_file(year,event);
+            year=[];event=[];
+        }    
+    }
+    
+}
+
+
+function validate(element){
+
+    // THIS IS FOR TIMELINE CHINESE HISTORY
+    // ,1970,,13 September,25 October,1972
+    if(typeof element == 'undefined'){
+        var obj = {}
+        obj.year = element;
+        obj.valid = false;
+        return obj;
+    }
+
+    var element1 = element;
+    // console.log('validating '+element)
+    // ONLY OPERATE FOR "X" TO "XXXX BCE"
+    if(element.length >=1 && element.length <=8){
+
+        // CHECK IF ENDS WITH BC,BCE,CE,AD 
+        // BC
+        var last = element.substring(element.length - 2,element.length) 
+        if(last == 'BC')
+            element = '-'+element.substring(0,element.length - 2).trim(); //REMOVE THE TRAILING WHITESPACE
+        // CE
+        if(last == 'CE')
+            element = element.substring(0,element.length - 2).trim(); //REMOVE THE TRAILING WHITESPACE
+        // AD
+        if(last == 'AD')
+            element = element.substring(0,element.length - 2).trim(); //REMOVE THE TRAILING WHITESPACE
+
+        // BCE
+        var last = element1.substring(element1.length - 3,element1.length) 
+        if(last == 'BCE'){
+            element = '-'+element1.substring(0,element1.length - 3).trim(); //REMOVE THE TRAILING WHITESPACE
+        }
+            
+        // CHECK IF ELEMENT CAN BE CONVERTED TO A NUMBER
+        if(!isNaN(parseInt(element))){
+            var obj = {}
+            obj.year = element;
+            obj.valid = true;
+            return obj;
+        }
+            
+    }
+    var obj = {}
+    obj.year = element;
+    obj.valid = false;
+    return obj;
+}
+
+
+function write_file(year,event){
+
+    var filename = path.join(DESTINATION_FOLDER,year[0])+'.json'
+    var obj = {};
+    obj.year = year[0];
+    obj[DESTINATION_FOLDER]=event;
+
+    fs.writeFileSync(filename,JSON.stringify(obj,null,2));
+    console.log("data writing complete "+DESTINATION_FOLDER+"- in "+year[0]);
+
+}
+
+
+
