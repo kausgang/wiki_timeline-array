@@ -5,20 +5,6 @@
 //    take the last 500 year history of the below countries
 // india https://en.wikipedia.org/wiki/Timeline_of_Indian_history
 // USA https://en.wikipedia.org/wiki/Timeline_of_United_States_history
-// England https://en.wikipedia.org/wiki/Timeline_of_English_history
-// china https://en.wikipedia.org/wiki/Timeline_of_Chinese_history
-// cuba https://en.wikipedia.org/wiki/Timeline_of_Cuban_history
-// France https://en.wikipedia.org/wiki/Timeline_of_French_history
-// Gramany https://en.wikipedia.org/wiki/Timeline_of_German_history
-// Italy https://en.wikipedia.org/wiki/Timeline_of_Italian_history
-// japan https://en.wikipedia.org/wiki/Timeline_of_Japanese_history
-// Mexico https://en.wikipedia.org/wiki/Timeline_of_Mexican_history
-// Poland https://en.wikipedia.org/wiki/Timeline_of_Polish_history
-// Russia https://en.wikipedia.org/wiki/Timeline_of_Russian_history
-// Spain https://en.wikipedia.org/wiki/Timeline_of_Spanish_history
-// Turkey https://en.wikipedia.org/wiki/Timeline_of_Turkish_history
-// Afgan https://en.wikipedia.org/wiki/Timeline_of_Afghan_history
- 
 
 var request = require('request');
 var cheerio = require('cheerio');
@@ -32,12 +18,7 @@ var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
-var page="&page=Timeline_of_Indian_history";     
-                         
-//to know the section number, paste this in filefox and find the section  
-// https://en.wikipedia.org/w/api.php?&action=parse&format=json&page=Timeline_of_United_States_history
-// ###########################################################################################################
-
+var page="&page=Timeline_of_Indian_history";                              
 
 // ############################## CHANGE THIS ###########################
 var DESTINATION_FOLDER = "India";  //CHANGE THIS FOR OTHER COUNTRY
@@ -57,7 +38,6 @@ fs.exists(DESTINATION_FOLDER, function (exists) {
                 console.log(err);
         })
     }
-
 });
 
 var url = api_main+action+page;
@@ -95,14 +75,9 @@ request.get(url, function(err,resp_code,data) {
         var data = table1("#event_table").parsetable();
 
         // CORRECT THE INPUT DATA , FILTER AND VALIDATE THE CORRECT YEAR AND WRITE TO FILE
-        correct_data(data,i)
-        
-
-    });
-    
-
+        correct_data(data,i)   
+    });    
 })
-
 
 
 function correct_data(data,i){
@@ -146,31 +121,20 @@ function correct_data(data,i){
             for(var i=0;i<data[0].length;i++)
                 year_data.push(data[0][i])
             console.log('NEW ARRAY => '+year_data)
-            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
             event_data.unshift("Event");
             filter(year_data,event_data);
         }
         // CHINA
         if(page=='&page=Timeline_of_Chinese_history' && i==45){
-            
-            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
             year_data.unshift("Year");
             console.log('NEW ARRAY => '+year_data)
-            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
             event_data.unshift("Event");
             filter(year_data,event_data);
         }
         // CUBA
-        if(page=='&page=Timeline_of_Cuban_history' && i==6){
-            
-            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
+        if(page=='&page=Timeline_of_Cuban_history' && i==6){            
             year_data.unshift("Year");
             console.log('NEW ARRAY => '+year_data)
-
             event_data.unshift("Event");
             filter(year_data,event_data);
         }
@@ -178,24 +142,17 @@ function correct_data(data,i){
         if(page=='&page=Timeline_of_Philippine_history'){
             if(i==2 || i==3){
                 year_data.shift();
-                // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
                 year_data.unshift("Year");
                 console.log('NEW ARRAY => '+year_data)
-
                 event_data.unshift("Event");
                 filter(year_data,event_data);
             }  
         }
         // RUSSIA
         if(page=='&page=Timeline_of_Russian_history' && i==13){
-            
-            // PUSH AN ELEMENT AT THE BEGINNING OF THE ARRAY
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
             year_data.unshift("Year");
             year_data[1]='1918';
             console.log('NEW ARRAY => '+year_data)
-
             event_data.unshift("Event");
             filter(year_data,event_data);
         }
@@ -205,26 +162,19 @@ function correct_data(data,i){
     }
     else
         filter(year_data,event_data);    
-
 }
 
 
 
 function filter(year_data,event_data){
 
-    // for(var i =0;i<year.length;i++)
-    //     console.log(year_data[i]+' ==> '+event_data[i])
-
     var year = [],
         event = [];
 
     for(var i=0;i<year_data.length;i++){
-        // console.log('validating element '+year_data[i])
-
         var element = year_data[i];
-
-        // element = ''
-        var obj = validate(element)
+        var obj = validate(element);
+     
         if(obj.valid){
             // console.log(obj.year)
             year.push(obj.year);
@@ -241,8 +191,7 @@ function filter(year_data,event_data){
             write_file(year,event);
             year=[];event=[];
         }    
-    }
-    
+    }    
 }
 
 
@@ -286,8 +235,7 @@ function validate(element){
             obj.year = element;
             obj.valid = true;
             return obj;
-        }
-            
+        }            
     }
     var obj = {}
     obj.year = element;
