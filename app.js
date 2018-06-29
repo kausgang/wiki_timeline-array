@@ -10,7 +10,6 @@ var request = require('request');
 var cheerio = require('cheerio');
 var cheerioTableparser = require('cheerio-tableparser');
 var decode = require('unescape');
-var decode = require('unescape');
 var fs = require('fs');
 var path = require('path');
 
