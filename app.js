@@ -2,7 +2,7 @@
 // all timelines
 // https://en.wikipedia.org/wiki/Category:Timelines_by_country
 
-//    take the last 500 year history of the below countries
+// Data Source
 // india https://en.wikipedia.org/wiki/Timeline_of_Indian_history
 // USA https://en.wikipedia.org/wiki/Timeline_of_United_States_history
 
@@ -17,10 +17,10 @@ var api_main = 'https://en.wikipedia.org/w/api.php?';
 var action = '&action=parse&format=json';
 
 // ############################## CHANGE THIS ###############################################################
-var page="&page=Timeline_of_Indian_history";                              
+var page="&page=Timeline_of_United_States_history";                              
 
 // ############################## CHANGE THIS ###########################
-var DESTINATION_FOLDER = "India";  //CHANGE THIS FOR OTHER COUNTRY
+var DESTINATION_FOLDER = "USA";  //CHANGE THIS FOR OTHER COUNTRY
 // ######################################################################
 
 // CHECK IF FOLDER EXISTS..IF NOT CREATE IT
@@ -245,7 +245,11 @@ function validate(element){
 
 function write_file(year,event){
 
-    var filename = path.join(DESTINATION_FOLDER,year[0])+'.json'
+    /* TRIMMED FILENAME TO MAKE SURE ALL COUNTRY'S YEAR MATCH...
+    EXCEPTION URLSearchParams.apply." 1901" , " 1902" ETC */
+    
+    // var filename = path.join(DESTINATION_FOLDER,year[0])+'.json'
+    var filename = path.join(DESTINATION_FOLDER,year[0].trim())+'.json'
     var obj = {};
     obj.year = year[0];
     obj[DESTINATION_FOLDER]=event;
@@ -256,4 +260,7 @@ function write_file(year,event){
 }
 
 
-
+// https://www.w3schools.com/jsref/jsref_trim_string.asp
+function myTrim(x) {
+    return x.replace(/^\s+|\s+$/gm,'');
+}
