@@ -54,6 +54,6 @@ C:\Users\typgang\Downloads\wiki_timeline-array-master\wiki_timeline-array-master
 https://github.com/kausgang/collect_wiki_timline_data
 
 
-### collaborate different country's year into one single timeline 
-https://github.com/kausgang/collaborate_wiki_timeline
+### collate different country's year into one single timeline 
+https://github.com/kausgang/collate_wiki_timeline
 
