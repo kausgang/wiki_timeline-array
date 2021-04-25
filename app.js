@@ -310,7 +310,7 @@ function write_file(year,event){
 
     var filename = path.join(DESTINATION_FOLDER,year[0].trim())+'.json'
     var obj = {};
-    obj.year = year[0];
+    obj.year = year[0].trim();
     obj[DESTINATION_FOLDER]=event;
 
     fs.writeFileSync(filename,JSON.stringify(obj,null,2));
